@@ -2,7 +2,6 @@ import 'package:class_perpusku/model/buku.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class BukuPage extends StatelessWidget {
   final Buku buku;
@@ -194,9 +193,16 @@ class PdfViewerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Baca Buku"),
-        ),
-        body: SfPdfViewer.asset(pdfUrl));
+      appBar: AppBar(
+        title: Text("Baca Buku"),
+      ),
+      body: PDFView(
+        filePath: pdfUrl,
+        enableSwipe: true,
+        swipeHorizontal: true,
+        autoSpacing: false,
+        pageFling: false,
+      ),
+    );
   }
 }
