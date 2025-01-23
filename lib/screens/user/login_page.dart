@@ -19,7 +19,8 @@ class LoginPage extends StatelessWidget {
       // Navigate to user dashboard if login successful
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Beranda()),
+        MaterialPageRoute(
+            builder: (context) => Beranda(username: user.username)),
       );
     } else {
       // Show error dialog if login fails

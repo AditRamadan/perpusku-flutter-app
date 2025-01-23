@@ -167,8 +167,17 @@ class BukuPage extends StatelessWidget {
               Container(
                 height: 100,
                 color: Colors.grey[400],
-                child: similarBook.file_buku.isNotEmpty
-                    ? Image.network(similarBook.file_buku, fit: BoxFit.cover)
+                child: similarBook.cover_buku.isNotEmpty
+                    ? (similarBook.cover_buku.startsWith('data:image')
+                        ? Image.memory(
+                            base64Decode(
+                                similarBook.cover_buku.split(',').last),
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            similarBook.cover_buku,
+                            fit: BoxFit.cover,
+                          ))
                     : Icon(Icons.image, color: Colors.grey[700]),
               ),
               SizedBox(height: 5),

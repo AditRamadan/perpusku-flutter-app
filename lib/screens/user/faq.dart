@@ -38,8 +38,6 @@ class FAQ extends StatelessWidget {
                       context,
                       'Apakah ada biaya untuk menggunakan aplikasi?',
                       'Aplikasi ini dapat digunakan secara gratis oleh semua pengguna, tanpa biaya tambahan.'),
-                  _faqItem(context, 'Bagaimana cara mengubah profil saya?',
-                      'Anda dapat mengubah profil melalui menu Pengaturan Profile yang ada di halaman profil.'),
                 ],
               ),
             ),

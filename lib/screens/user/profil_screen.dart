@@ -5,7 +5,9 @@ import 'beranda.dart';
 import 'faq.dart';
 
 class ProfilScreen extends StatelessWidget {
-  const ProfilScreen({Key? key}) : super(key: key);
+  final String username; // Tambahkan parameter username
+
+  const ProfilScreen({Key? key, required this.username}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +25,12 @@ class ProfilScreen extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
+                    // Navigasi kembali ke halaman Beranda
+                    Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => Beranda()),
+                      MaterialPageRoute(
+                        builder: (context) => Beranda(username: username),
+                      ),
                     );
                   },
                   child: Text(
@@ -49,8 +54,9 @@ class ProfilScreen extends StatelessWidget {
               child: Icon(Icons.person, size: 80, color: Colors.white),
             ),
             SizedBox(height: 20),
+            // Tampilkan username pengguna
             Text(
-              'Nabil Dzaka',
+              username,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

@@ -2,12 +2,20 @@ import 'package:class_perpusku/screens/admin/kelola_buku.dart';
 import 'package:class_perpusku/screens/admin/kelola_user.dart';
 import 'package:class_perpusku/screens/admin/login_admin.dart';
 import 'package:flutter/material.dart';
+import 'package:class_perpusku/services/buku_services.dart';
+import 'package:class_perpusku/services/user_services.dart';
 
 class BerandaAdmin extends StatelessWidget {
-  const BerandaAdmin({super.key});
+  BerandaAdmin({super.key});
+
+  final BukuServices _bukuServices = BukuServices();
+  final UserServices _userServices = UserServices();
 
   @override
   Widget build(BuildContext context) {
+    final int jumlahBuku = _bukuServices.getAllBuku().length;
+    final int jumlahUser = _userServices.getAllUsers().length;
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
@@ -66,9 +74,9 @@ class BerandaAdmin extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 30),
-            _infoBox("Jumlah User = 100"),
+            _infoBox("Jumlah User = $jumlahUser"),
             const SizedBox(height: 20),
-            _infoBox("Jumlah Buku = 1000"),
+            _infoBox("Jumlah Buku = $jumlahBuku"),
           ],
         ),
       ),

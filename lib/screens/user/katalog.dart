@@ -1,14 +1,12 @@
-import 'package:class_perpusku/screens/user/biografi.dart';
-import 'package:class_perpusku/screens/user/novel.dart';
-import 'package:class_perpusku/screens/user/pendidikan.dart';
-import 'package:class_perpusku/screens/user/pengembangan_diri.dart';
-import 'package:class_perpusku/screens/user/referensi.dart';
-import 'package:class_perpusku/screens/user/teknologi.dart';
+import 'dart:convert'; // Add this import at the top of the file
 import 'package:flutter/material.dart';
 import 'buku_page.dart';
+import 'package:class_perpusku/model/buku.dart';
 
 class Katalog extends StatelessWidget {
-  const Katalog({super.key});
+  final List<Buku> bukuList;
+
+  const Katalog({super.key, required this.bukuList});
 
   @override
   Widget build(BuildContext context) {
@@ -26,60 +24,18 @@ class Katalog extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Pendidikan()),
-                  );
-                },
-                child: _bagianKategori(context, 'Buku Pendidikan'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Novel()),
-                  );
-                },
-                child: _bagianKategori(context, 'Novel'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Biografi()),
-                  );
-                },
-                child: _bagianKategori(context, 'Buku Biografi'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PengembanganDiri()),
-                  );
-                },
-                child: _bagianKategori(context, 'Buku Pengembangan Diri'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Referensi()),
-                  );
-                },
-                child: _bagianKategori(context, 'Buku Referensi'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Teknologi()),
-                  );
-                },
-                child: _bagianKategori(context, 'Buku Teknologi'),
-              ),
+              _bagianKategori(context, 'Buku Pelajaran',
+                  _filterBukuByKategori('Buku Pelajaran')),
+              _bagianKategori(context, 'Novel Remaja',
+                  _filterBukuByKategori('Novel Remaja')),
+              _bagianKategori(
+                  context, 'Biografi', _filterBukuByKategori('Biografi')),
+              _bagianKategori(context, 'Buku Pengembangan Diri',
+                  _filterBukuByKategori('Pengembangan Diri')),
+              _bagianKategori(context, 'Buku Referensi',
+                  _filterBukuByKategori('Referensi')),
+              _bagianKategori(context, 'Buku Teknologi',
+                  _filterBukuByKategori('Teknologi')),
             ],
           ),
         ),
@@ -87,7 +43,12 @@ class Katalog extends StatelessWidget {
     );
   }
 
-  Widget _bagianKategori(BuildContext context, String title) {
+  List<Buku> _filterBukuByKategori(String kategori) {
+    return bukuList.where((buku) => buku.kategori == kategori).toList();
+  }
+
+  Widget _bagianKategori(
+      BuildContext context, String title, List<Buku> bukuKategori) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -103,10 +64,20 @@ class Katalog extends StatelessWidget {
           height: 150,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: 6,
+            itemCount: bukuKategori.length,
             itemBuilder: (context, index) {
+              final buku = bukuKategori[index];
               return GestureDetector(
-                child: _cardBuku(),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BukuPage(buku: buku, allBooks: bukuList),
+                    ),
+                  );
+                },
+                child: _cardBuku(buku),
               );
             },
           ),
@@ -116,13 +87,49 @@ class Katalog extends StatelessWidget {
     );
   }
 
-  Widget _cardBuku() {
+  Widget _cardBuku(Buku buku) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
         width: 100,
-        color: Colors.white,
-        child: Icon(Icons.image, color: Colors.grey[700]),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: buku.cover_buku.isNotEmpty
+                  ? (buku.cover_buku.startsWith('data:image')
+                      ? Image.memory(
+                          base64Decode(buku.cover_buku.split(',').last),
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          buku.cover_buku,
+                          fit: BoxFit.cover,
+                        ))
+                  : Icon(Icons.image, color: Colors.grey[700]),
+            ),
+            SizedBox(height: 5),
+            Text(
+              buku.judul,
+              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

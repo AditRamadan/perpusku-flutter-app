@@ -1,5 +1,4 @@
-import 'dart:convert'; // Add this import at the top of the file
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../model/buku.dart';
 import '../../services/buku_services.dart';
@@ -9,15 +8,47 @@ import 'koleksi.dart';
 import 'profil_screen.dart';
 import 'login_page.dart';
 
-class Beranda extends StatelessWidget {
-  final BukuServices _bukuServices = BukuServices(); // Instance BukuServices
+class Beranda extends StatefulWidget {
+  final String username;
 
-  Beranda({super.key});
+  Beranda({super.key, required this.username});
+
+  @override
+  _BerandaState createState() => _BerandaState();
+}
+
+class _BerandaState extends State<Beranda> {
+  final BukuServices _bukuServices = BukuServices();
+  late List<Buku> bukuList;
+  late List<Buku> filteredBukuList; // Daftar buku yang telah difilter
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    bukuList = _bukuServices.getAllBuku(); // Ambil semua buku
+    filteredBukuList = bukuList; // Awalnya daftar buku tidak difilter
+    _searchController
+        .addListener(_filterBooks); // Dengarkan perubahan teks pencarian
+  }
+
+  void _filterBooks() {
+    final query = _searchController.text.toLowerCase(); // Ambil teks pencarian
+    setState(() {
+      filteredBukuList = bukuList.where((buku) {
+        return buku.judul.toLowerCase().contains(query); // Cocokkan nama buku
+      }).toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Buku> bukuList = _bukuServices.getAllBuku(); // Ambil semua buku
-
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
@@ -34,6 +65,7 @@ class Beranda extends StatelessWidget {
             Spacer(),
             Expanded(
               child: TextField(
+                controller: _searchController, // Hubungkan dengan controller
                 decoration: InputDecoration(
                   hintText: "Cari buku",
                   hintStyle: TextStyle(color: Colors.grey[400]),
@@ -59,7 +91,7 @@ class Beranda extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Nabil Dzaka',
+                    widget.username,
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -70,7 +102,10 @@ class Beranda extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfilScreen()),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProfilScreen(username: widget.username),
+                        ),
                       );
                     },
                   ),
@@ -90,7 +125,9 @@ class Beranda extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Katalog()),
+                  MaterialPageRoute(
+                    builder: (context) => Katalog(bukuList: bukuList),
+                  ),
                 );
               },
             ),
@@ -137,7 +174,7 @@ class Beranda extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              _daftarBuku(context, bukuList), // Tampilkan daftar buku
+              _daftarBuku(context, filteredBukuList),
             ],
           ),
         ),
@@ -147,13 +184,13 @@ class Beranda extends StatelessWidget {
 
   Widget _daftarBuku(BuildContext context, List<Buku> bukuList) {
     return GridView.builder(
-      shrinkWrap: true, // Agar GridView menyesuaikan konten
-      physics: NeverScrollableScrollPhysics(), // Hindari konflik scroll
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // 4 kolom per baris
-        crossAxisSpacing: 8.0, // Jarak antar kolom
-        mainAxisSpacing: 8.0, // Jarak antar baris
-        childAspectRatio: 0.65, // Rasio aspek untuk tampilan card
+        crossAxisCount: 4,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+        childAspectRatio: 0.6,
       ),
       itemCount: bukuList.length,
       itemBuilder: (context, index) {
@@ -178,7 +215,7 @@ class Beranda extends StatelessWidget {
 
   Widget _cardBuku(Buku buku) {
     return Container(
-      width: 150, // Tentukan lebar card agar lebih konsisten
+      width: 150,
       margin: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -196,7 +233,7 @@ class Beranda extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AspectRatio(
-            aspectRatio: 3 / 4, // Rasio aspek cover buku
+            aspectRatio: 3 / 4,
             child: ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               child: buku.cover_buku.isNotEmpty
@@ -219,34 +256,35 @@ class Beranda extends StatelessWidget {
                     ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Teks judul buku dengan overflow dan maxLines 1
-                Text(
-                  buku.judul,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    buku.judul,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4),
-                // Teks kategori dengan overflow dan maxLines 1
-                Text(
-                  buku.kategori,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
+                  SizedBox(height: 4),
+                  Text(
+                    buku.kategori,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

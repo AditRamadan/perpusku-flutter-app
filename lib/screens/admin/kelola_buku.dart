@@ -97,9 +97,29 @@ class _BukuPageState extends State<KelolaBuku> {
               controller: _deskripsiController,
               decoration: InputDecoration(labelText: 'Deskripsi'),
             ),
-            TextFormField(
-              controller: _kategoriController,
+            DropdownButtonFormField<String>(
+              value: _kategoriController.text.isNotEmpty
+                  ? _kategoriController.text
+                  : null,
+              items: [
+                'Buku Pelajaran',
+                'Novel Remaja',
+                'Biografi',
+                'Pengembangan Diri',
+                'Buku Referensi',
+                'Teknologi',
+              ]
+                  .map((kategori) => DropdownMenuItem(
+                        value: kategori,
+                        child: Text(kategori),
+                      ))
+                  .toList(),
               decoration: InputDecoration(labelText: 'Kategori'),
+              onChanged: (value) {
+                setState(() {
+                  _kategoriController.text = value ?? '';
+                });
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Kategori tidak boleh kosong';
